@@ -1,21 +1,29 @@
-FROM node:16-alpine3.11 as angular
+# Use the official Node.js image as the base image
+FROM node:14 as build
 
+# Set the working directory in the container
 WORKDIR /app
 
-COPY package*json ./
+# Copy package.json and package-lock.json to the container
+COPY package*.json ./
 
-COPY . .
-
+# Install project dependencies
 RUN npm install
 
-RUN npm run build 
+# Copy the entire project to the container
+COPY . .
 
-FROM httpd:alpine3.15
+# Build the Angular app for production
+RUN ng build --prod
 
-WORKDIR /usr/local/apache2/htdocs
+# Use a smaller, production-ready image as the final image
+FROM nginx:alpine
 
-COPY --from=angular /app/dist/quiz-app . 
+# Copy the production-ready Angular app to the Nginx webserver's root directory
+COPY --from=build /app/dist/your-angular-app /usr/share/nginx/html
 
+# Expose port 80
 EXPOSE 80
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
