@@ -1,29 +1,29 @@
-# Use the official Node.js image as the base image
-FROM node:18 as build
+# Build the app in image ‘builder’ (multi-stage builds)
+FROM node:latest as build
 
-# Set the working directory in the container
+# Define working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the container
+# Duplicate the package-lock.json and package.json prior to other files
 COPY package*.json ./
 
-# Install project dependencies
+RUN npm ci
+
+RUN npm install -g @angular/cli
+# Duplicate all necessary files
+COPY . .
+# Set up project dependencies
 RUN npm install
 
-# Copy the entire project to the container
-COPY . .
+# Compile the Angular application
+RUN npm run build –-configuration-production
 
-# Build the Angular app for production
-RUN ng build --prod
+# Use nginx server to deliver the application
+FROM nginx:latest
 
-# Use a smaller, production-ready image as the final image
-FROM nginx:alpine
+# Transfer the output of the build step
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the production-ready Angular app to the Nginx webserver's root directory
-COPY --from=build /app/dist/your-angular-app /usr/share/nginx/html
+COPY –from=build /app/dist/my-angular-app/ /usr/share/nginx/html/
 
-# Expose port 80
 EXPOSE 80
-
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
