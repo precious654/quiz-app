@@ -1,21 +1,21 @@
-FROM node:18-alpine as build
+FROM node:16-alpine3.11 as angular
 
 WORKDIR /app
 
 COPY package*json ./
 
-RUN npm install
-
 COPY . .
 
-RUN npm run build --prod
+RUN npm install
 
-FROM nginx:1.21.0-alpine
+RUN npm run build 
 
-RUN rm -rf /usr/share/nginx/html/*
+FROM httpd:alpine3.15
 
-COPY --from=build /app/dist/* /usr/share/nginx/html
+WORKDIR /usr/local/apache2/htdocs
+
+COPY --from=angular /app/dist/quiz-app . 
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["ng", "serve", "--host", "0.0.0.0"]
