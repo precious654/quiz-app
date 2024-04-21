@@ -16,7 +16,7 @@ COPY . .
 RUN npm install
 
 # Compile the Angular application
-RUN npm run build –-quiz-app
+RUN npm run build –quiz-app
 
 # Use nginx server to deliver the application
 FROM nginx:latest
