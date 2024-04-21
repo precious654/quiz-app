@@ -1,4 +1,4 @@
-FROM node:alphine as build
+FROM node:14-alpine as build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ COPY . .
 
 RUN npm run build --prod
 
-FROM nginx:1.21.0-alphine
+FROM nginx:1.21.0-alpine
 
 RUN rm -rf /usr/share/nginx/html/*
 
