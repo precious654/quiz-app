@@ -1,25 +1,27 @@
-# Build the app in image ‘builder’ (multi-stage builds)
-FROM node:20 as builder
+# Step 1: Use an official Node.js runtime as a parent image
+FROM node:16-alpine as build
 
-# Define working directory
+# Step 2: Set the working directory
 WORKDIR /app
 
-# Duplicate the package-lock.json and package.json prior to other files
+# Step 3: Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
-# Duplicate all necessary files
-COPY . .
-# Set up project dependencies
+# Step 4: Install dependencies
 RUN npm install
 
-# Compile the Angular application
-RUN npm run build –prod
+# Step 5: Copy the rest of your app's source code
+COPY . .
 
-# Use nginx server to deliver the application
+# Step 6: Build your Angular app
+RUN ng build --prod
+
+# Step 7: Use nginx to serve the static content
 FROM nginx:alpine
+COPY --from=build /app/dist/my-angular-app /usr/share/nginx/html
 
-# Transfer the output of the build step
-COPY –from=builder /app/dist/my-angular-app/ /usr/share/nginx/html
+# Step 8: Expose port 80 to the outside world
+EXPOSE 80
 
-# Replace the default nginx configuration with the one provided by tiangolo/node-frontend
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# Step 9: Configure the container to run as an executable
+CMD ["nginx", "-g", "daemon off;"]
