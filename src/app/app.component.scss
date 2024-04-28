@@ -1,0 +1,26 @@
+main{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    h1{
+        text-align: center;
+    }
+
+    .card{
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-block-start: 5rem;
+        inline-size: 80%;
+        background-color: #888888;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    form{
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
