@@ -1,15 +1,10 @@
-FROM node:latest
-
+FROM node:18.17.1-alpine AS build
 WORKDIR /app
-
 COPY package*.json ./
-
-COPY . .
-
-RUN npm install -g @angular/cli
-
 RUN npm install
-
-CMD ["ng", "serve", "--host", "0.0.0.0"]
-
+RUN npx ngcc --properties es2023 browser module main --first-only --create-ivy-entry-points
+COPY . .
+RUN npm run build
+FROM nginx:stable
+COPY --from=build /app/quiz-app/ /usr/share/nginx/html
 EXPOSE 80
