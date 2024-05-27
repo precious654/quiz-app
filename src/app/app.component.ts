@@ -11,8 +11,9 @@ import Parse from 'parse';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  question: number = 1;
+  question: number = 0;
   questionAnswer: string = "";
+  questionNo: number = 1;
 
   data: any = [];
 
@@ -21,26 +22,23 @@ export class AppComponent {
       const query = new Parse.Query("Quiz");
       const quiz = await query.find();
       this.data = quiz;
-      console.log(this.data);
     } catch (error) {
       console.log(error);
     }
   }
 
   handleSubmit = () => {
-    console.log(this.data[this.question].get("answer"));
-    console.log(this.questionAnswer)
-    if(this.questionAnswer == this.data[this.question].get("answer")) {
-      console.log('fire');
-      // let newQuestion = this.question + 1;
-      // this.question = newQuestion;
-      // console.log(this.question);
-      // this.fetchData();
+    if(this.questionAnswer === this.data[this.question].get("answer")) {
+      this.question = this.question + 1;
+      this.questionNo = this.questionNo + 1;
+      alert("correct");
+      this.fetchData();
+    } else {
+      alert("Wrong answer!!! Try again");
     }
   }
 
   ngOnInit() {
-    console.log("lifecycle");
     this.fetchData();
   }
 
