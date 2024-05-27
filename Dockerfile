@@ -1,9 +1,9 @@
-FROM node:20-alpine as builder
-WORKDIR /app
-COPY package.json .
+FROM node:alpine
+WORKDIR /app# Install 
+COPY package*.json ./
+RUN npm install -g @angular/cli
 RUN npm install
 COPY . .
-RUN npm run build --prod
+EXPOSE 80
+CMD ["ng", "serve", "--host", "0.0.0.0"]
 
-FROM nginx
-COPY --from=builder /app/dist/angular-docker/browser /usr/share/nginx/html
