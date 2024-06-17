@@ -1,15 +1,12 @@
-FROM node:14 AS build
+FROM node:latest as build
 WORKDIR /app
 COPY package*.json ./
+RUN npm ci
 RUN npm install -g @angular/cli
-RUN npm install
 COPY . .
-RUN ng build --prod
+RUN npm run build --configuration=production
 
-# Use the official NGINX image to serve the application
-FROM nginx:alpine
-COPY --from=build /app/dist/quiz-app /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
+FROM nginx:latest
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/quiz-app/browser /usr/share/nginx/html
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-
